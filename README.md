@@ -1,4 +1,5 @@
 # hungry-bird
+<img src="win.png" alt="screen shot">
 # links
 youtube = https://www.youtube.com/channel/UCDzk7PgmdWis8_jDH8rkzEQ;
 telegram = https://t.me/ildbishe;
