@@ -1,9 +1,9 @@
 use macroquad::prelude::*;
 
 const PLAYER_SIZE: f32 = 64.0;
-const APPLE_SIZE: f32 = 50.0;
-const APPLE_SPEED: f32 = 85.0;
-const PLAYER_SPEED: f32 = 270.0;
+const APPLE_SIZE: f32 = 60.0;
+const APPLE_SPEED: f32 = 95.0;
+const PLAYER_SPEED: f32 = 230.0;
 
 #[derive(Clone)]
 struct Apple {
@@ -19,6 +19,7 @@ struct Game {
     game_over: bool,
     player_texture: Texture2D,
     ap: Texture2D,
+    ba: Texture2D,
 }
 
 impl Game {
@@ -31,6 +32,10 @@ impl Game {
         let ap: macroquad::texture::Texture2D = load_texture("assets/a.png")
             .await
             .expect("Failed to load player texture!");
+            
+        let ba: macroquad::texture::Texture2D = load_texture("assets/ba.png")
+            .await
+            .expect("Failed to load back texture!");
         Self {
             player_x: screen_width() / 2.0 - PLAYER_SIZE / 2.0,
             player_y: screen_height() - 80.0,
@@ -39,6 +44,7 @@ impl Game {
             game_over: false,
             player_texture,
             ap,
+            ba,
         }
     }
 
@@ -94,7 +100,16 @@ impl Game {
     }
 
     fn draw(&self) {
-        clear_background(BLUE);
+        draw_texture_ex(
+            &self .ba,
+            0.0,
+            0.0,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(Vec2::new(screen_width(), screen_height())),
+                ..Default::default()
+            }
+        );
 
         
         draw_texture_ex(
