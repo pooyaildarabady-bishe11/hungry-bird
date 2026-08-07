@@ -1,9 +1,9 @@
 use macroquad::prelude::*;
 
-const PLAYER_SIZE: f32 = 60.0;
-const APPLE_SIZE: f32 = 25.0;
+const PLAYER_SIZE: f32 = 64.0;
+const APPLE_SIZE: f32 = 50.0;
 const APPLE_SPEED: f32 = 85.0;
-const PLAYER_SPEED: f32 = 200.0;
+const PLAYER_SPEED: f32 = 270.0;
 
 #[derive(Clone)]
 struct Apple {
@@ -17,16 +17,28 @@ struct Game {
     apples: Vec<Apple>,
     score: i32,
     game_over: bool,
+    player_texture: Texture2D,
+    ap: Texture2D,
 }
 
 impl Game {
-    fn new() -> Self {
+    async fn new() -> Self {
+        
+        let player_texture = load_texture("assets/b.png")
+            .await
+            .expect("Failed to load player texture!");
+        
+        let ap: macroquad::texture::Texture2D = load_texture("assets/a.png")
+            .await
+            .expect("Failed to load player texture!");
         Self {
             player_x: screen_width() / 2.0 - PLAYER_SIZE / 2.0,
             player_y: screen_height() - 80.0,
             apples: Vec::new(),
             score: 0,
             game_over: false,
+            player_texture,
+            ap,
         }
     }
 
@@ -38,44 +50,40 @@ impl Game {
         
         let mut dx = 0.0;
         if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
-            dx -= 2.1;
+            dx -= 3.0;
         }
         if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
-            dx += 2.1;
+            dx += 3.0;
         }
 
         self.player_x += dx * PLAYER_SPEED * dt;
-
-
         self.player_x = self.player_x.clamp(0.0, screen_width() - PLAYER_SIZE);
 
-
-        if rand::gen_range(0, 20000) < 300 {
+        
+        if rand::gen_range(0, 170) < 3 {
             self.apples.push(Apple {
                 x: rand::gen_range(0.0, screen_width() - APPLE_SIZE),
                 y: 0.0,
             });
         }
 
-
+        
         for apple in &mut self.apples {
             apple.y += APPLE_SPEED * dt;
         }
 
-    
+        
         let mut new_apples = Vec::new();
         for apple in &self.apples {
-            
             if apple.y + APPLE_SIZE > self.player_y
                 && apple.y < self.player_y + PLAYER_SIZE
                 && apple.x + APPLE_SIZE > self.player_x
                 && apple.x < self.player_x + PLAYER_SIZE
             {
                 self.score += 1;
-                continue;  
+                continue;
             }
 
-            
             if apple.y > screen_height() {
                 self.game_over = true;
             }
@@ -89,37 +97,44 @@ impl Game {
         clear_background(BLUE);
 
         
-        draw_rectangle(
+        draw_texture_ex(
+            &self.player_texture,
             self.player_x,
             self.player_y,
-            PLAYER_SIZE,
-            PLAYER_SIZE,
-            YELLOW,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(Vec2::new(PLAYER_SIZE, 96.0)),
+                ..Default::default()
+            }
         );
 
+        
         for apple in &self.apples {
-            draw_circle(
-                apple.x + APPLE_SIZE / 2.0,
-                apple.y + APPLE_SIZE / 2.0,
-                APPLE_SIZE / 2.0,
-                RED,
+            draw_texture_ex(
+                &self .ap,
+                apple.x,
+                apple.y,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(Vec2::new(APPLE_SIZE, APPLE_SIZE)),
+                    ..Default::default()
+                }
             );
         }
 
         
         draw_text(
-            &format!("score: {}", self.score),
+            &format!("Score: {}", self.score),
             20.0,
             40.0,
             30.0,
             BLACK,
         );
-
         
         if self.game_over {
             draw_text(
-                "game over, press r to retry",
-                screen_width() / 2.0 - 200.0,
+                "Game Over! Press R to restart",
+                screen_width() / 2.0 - 180.0,
                 screen_height() / 2.0,
                 30.0,
                 BLACK,
@@ -136,17 +151,17 @@ impl Game {
     }
 }
 
-#[macroquad::main("hungery bird")]
+#[macroquad::main("hungry bird")]
 async fn main() {
-    let mut game = Game::new();
+    let mut game = Game::new().await;
 
     loop {
         let dt = get_frame_time();
 
-        
         if is_key_pressed(KeyCode::R) {
             game.reset();
         }
+
 
         game.update(dt);
         game.draw();
