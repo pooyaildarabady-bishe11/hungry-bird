@@ -1,7 +1,7 @@
 # hungry-bird
 <html>
   
-<img src="v.png" alt="screen shot">
+<img src="w.png" alt="screen shot">
 </html>
 
 
